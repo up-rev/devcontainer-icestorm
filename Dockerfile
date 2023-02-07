@@ -1,22 +1,12 @@
-FROM ubuntu:18.04 as dev
+FROM uprev/base:ubuntu-18.04 as dev
 
-ARG DEBIAN_FRONTEND=noninteractive
-
-#passwords as arguments so they can be changed
-ARG DEV_PW=password
-ARG JENKINS_PW=jenkins
-
-ENV LC_CTYPE en_US.UTF-8
-ENV LANG en_US.UTF-8
 
 RUN apt-get update && apt-get install -y \
   # IceStorm and friends
   bison \
-  build-essential \
   clang \
   flex \
   gawk \
-  git \
   graphviz \
   libboost-all-dev \
   libeigen3-dev \
@@ -25,10 +15,6 @@ RUN apt-get update && apt-get install -y \
   libreadline-dev \
   mercurial \
   pkg-config \
-  python \
-  python3 \
-  python3-pip \
-  python3-setuptools \
   python3-dev \
   qt5-default \
   tcl-dev \
@@ -37,13 +23,9 @@ RUN apt-get update && apt-get install -y \
   autoconf \
   bison \
   flex \
-  g++ \
-  gcc \
-  git \
   gperf \
   gtkwave \
-  make \
-  wget \
+  openssl \
   && rm -rf /var/lib/apt/lists/* 
 
 
@@ -52,7 +34,7 @@ RUN cd /tmp && \
     wget https://cmake.org/files/v3.23/cmake-3.23.2.tar.gz && \
     tar -xzvf cmake-3.23.2.tar.gz && \ 
     cd cmake-3.23.2 && \
-    ./bootstrp && \
+    ./bootstrap && \
     make && \
     make install
 
