@@ -1,4 +1,4 @@
-FROM uprev/base:ubuntu-18.04 as dev
+FROM uprev/base:ubuntu-22.04 as dev
 
 
 RUN apt-get update && apt-get install -y \
@@ -13,10 +13,10 @@ RUN apt-get update && apt-get install -y \
   libffi-dev \
   libftdi-dev \
   libreadline-dev \
+  libssl-dev \
   mercurial \
   pkg-config \
   python3-dev \
-  qt5-default \
   tcl-dev \
   xdot \
   # Icarus Verilog and friends
@@ -49,65 +49,27 @@ RUN git clone --recursive https://github.com/cliffordwolf/icestorm.git icestorm 
 
 # arachne-pnr
 RUN git clone --recursive https://github.com/cseed/arachne-pnr.git arachne-pnr \
-    && cd arachne-pnr && make clean && make -j$(nproc) && make install && cd - && rm -r arachne-pnr \
-    # nextpnr
-    && git clone --recursive https://github.com/YosysHQ/nextpnr nextpnr \
+    && cd arachne-pnr && make clean && make -j$(nproc) && make install && cd - && rm -r arachne-pnr 
+
+# nextpnr
+RUN git clone --recursive https://github.com/YosysHQ/nextpnr nextpnr \
     && cd nextpnr && cmake -DARCH=ice40 -DBUILD_GUI=OFF -DCMAKE_INSTALL_PREFIX=/usr/local . \
-    && make -j$(nproc) && make install && cd - && rm -r nextpnr \
-    # yosys
-    && git clone --recursive https://github.com/cliffordwolf/yosys.git yosys \
+    && make -j$(nproc) && make install && cd - && rm -r nextpnr 
+
+# yosys
+RUN git clone --recursive https://github.com/cliffordwolf/yosys.git yosys \
     && cd yosys && make clean && make yosys-abc \
-    && make -j$(nproc) && make install && cd - && rm -r yosys \
+    && make -j$(nproc) && make install && cd - && rm -r yosys 
+
     # iverilog
-    && git clone --recursive https://github.com/steveicarus/iverilog.git iverilog \
-    && cd iverilog && autoconf && ./configure && make clean \
-    && make -j$(nproc) && make install && cd - && rm -r iverilog \
-    # verilator
-    && git clone --recursive https://github.com/ddm/verilator.git verilator \
-    && cd verilator && autoconf && ./configure && make clean \
-    && make -j$(nproc) && make install && cd - && rm -r verilator
+RUN git clone --recursive https://github.com/steveicarus/iverilog.git iverilog \
+    && cd iverilog && sh autoconf.sh && ./configure && make clean \
+    && make -j$(nproc) && make install && cd - && rm -r iverilog 
 
+#     # verilator
+# RUN git clone --recursive https://github.com/ddm/verilator.git verilator \
+#     && cd verilator && autoconf && ./configure && make clean \
+#     && make -j$(nproc) && make install && cd - && rm -r verilator
 
-RUN pip3 install -U mrtutils
-
-# Add user dev to the image
-RUN adduser --quiet dev && \
-    echo "dev:$DEV_PW" | chpasswd && \
-    chown -R dev /home/dev 
 
 CMD [ "/bin/bash" ]
-
-
-######################################################################################################
-#                           Stage: jenkins                                                           #
-######################################################################################################
-FROM dev as jenkins
-
-ARG JENKINS_PW
-
-ENV LC_CTYPE en_US.UTF-8
-ENV LANG en_US.UTF-8
-
-
-#install jenkins dependencies
-RUN apt install -qq -y --no-install-recommends openjdk-8-jdk  openssh-server ca-certificates
-RUN adduser --quiet jenkins && \
-    echo "jenkins:$JENKINS_PW" | chpasswd && \
-    mkdir /home/jenkins/.m2 && \
-    mkdir /home/jenkins/jenkins && \
-    chown -R jenkins /home/jenkins 
-#JENKINS END
-
-# Setup SSH server
-RUN mkdir /var/run/sshd
-RUN echo 'root:password' | chpasswd
-RUN sed -i 's/#*PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
-
-# SSH login fix. Otherwise user is kicked off after login
-RUN sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
-
-ENV NOTVISIBLE="in users profile"
-RUN echo "export VISIBLE=now" >> /etc/profile
-
-EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]

@@ -19,7 +19,8 @@
 		"twxs.cmake",
 		"ms-python.python",
 		"redhat.vscode-yaml",
-		"ms-vscode.cmake-tools"
+		"ms-vscode.cmake-tools",
+		//"wavetrace.wavetrace"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
