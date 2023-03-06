@@ -10,9 +10,9 @@
 	"image": "uprev/icestorm",
 
 	// Set *default* container specific settings.json values on container create.
-	"settings": { 
-		"terminal.integrated.shell.linux": null
-	},
+	// "settings": { 
+	// 	"terminal.integrated.shell.linux": null
+	// },
 
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
@@ -20,7 +20,9 @@
 		"ms-python.python",
 		"redhat.vscode-yaml",
 		"ms-vscode.cmake-tools",
-		//"wavetrace.wavetrace"
+		"mshr-h.veriloghdl",
+		"wavetrace.wavetrace",
+		"mhutchie.git-graph"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -33,9 +35,9 @@
 	// "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
 
 	// Uncomment to use USB device inside of container for flash/debug (only works on linux host)
-	"mounts": ["type=bind,source=/dev/bus/usb,target=/dev/bus/usb"],
-	"runArgs": ["--privileged"]
+	// "mounts": ["type=bind,source=/dev/bus/usb,target=/dev/bus/usb"],
+	// "runArgs": ["--privileged"]
 
 	// Uncomment to connect as a non-root user if you've added one. See https://aka.ms/vscode-remote/containers/non-root.
-	//"remoteUser": "dev"
+	"remoteUser": "dev"
 }
